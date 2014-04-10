@@ -10,6 +10,7 @@ results = {}
 depth = 0
 maxdepth = 0
 domains = {}
+verbosity = 0
 
 class SpyderHTMLParser(HTMLParser):
     links = []
@@ -31,11 +32,10 @@ class SpyderCrawlResult(object):
         self.result = result
 
 def log(res, url, referer):
-    print "%d: %s" % (res, url)
-    print "\t%s" % referer
+    print "%d\t%s\t%s" % (res, url, referer)
 
 def crawl(url, referer=None):
-    global results, depth, domains
+    global results, depth, domains, verbosity
 
     u = urlparse.urlparse(url)
 
@@ -47,17 +47,22 @@ def crawl(url, referer=None):
 
     # Only hit allowable domains
     if u.netloc not in domains:
-        print "Foreign link: %s, aborting this leaf." % url
+        if verbosity > 1:
+            print "Foreign link: %s, aborting this leaf." % url
         return
     else:
         if domains[u.netloc] == False:
-            print "Avoiding link: %s" % url
+            if verbosity > 1:
+                print "Avoiding link: %s" % url
             return
 
     # Don't hit the same page twice, but log the result anyway
     if url in results:
         res = results[url]
-        log(res.result, url, referer)
+        if verbosity < 1:
+            return
+        if res.result != 200 or verbosity > 1:
+            log(res.result, url, referer)
         return
 
     # Don't recurse deeper than maxdepth
@@ -85,21 +90,24 @@ def crawl(url, referer=None):
     
     # Stuff the result into our results list and log
     results[url] = SpyderCrawlResult(url, code)
-    log(code, url, referer)
+    if code != 200 or verbosity > 0:
+        log(code, url, referer)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Traverse websites looking for broken links.')
     parser.add_argument('url', metavar='<url>', nargs='+', help='URLs to start scanning')
     parser.add_argument('--depth', '-d', metavar='N', type=int, default=5, help='Maximum depth to traverse from starting URL.')
+    parser.add_argument('--verbose', '-v', action='count', help='Verbosity++')
     
     args = parser.parse_args()
 
     maxdepth = args.depth
+    verbosity = args.verbose
     
     for url in args.url:
         u = urlparse.urlparse(url)
         if u.netloc not in domains or domains[u.netloc] != False:
             domains[u.netloc] = True
             crawl(url)
-    
+
     print "Finished."
