@@ -1,14 +1,14 @@
 # WebSpyder
 
-usage: webspyder.py [-h] [--depth N] [--verbose] <url> [<url> ...]
-
-positional arguments:
-  <url>            URLs to start scanning
-
-optional arguments:
-  -h, --help       show this help message and exit
-  --depth N, -d N  Maximum depth to traverse from starting URL.
-  --verbose, -v    Raise verbosity (use multiple times for more noise)
+    usage: webspyder.py [-h] [--depth N] [--verbose] <url> [<url> ...]
+    
+    positional arguments:
+      <url>            URLs to start scanning
+    
+    optional arguments:
+      -h, --help       show this help message and exit
+      --depth N, -d N  Maximum depth to traverse from starting URL.
+      --verbose, -v    Raise verbosity (use multiple times for more noise)
 
 ## Verbosity levels
 
