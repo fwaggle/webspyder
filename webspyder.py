@@ -47,12 +47,12 @@ def crawl(url, referer=None):
 
     # Only hit allowable domains
     if u.netloc not in domains:
-        if verbosity > 1:
+        if verbosity > 2:
             print "Foreign link: %s, aborting this leaf." % url
         return
     else:
         if domains[u.netloc] == False:
-            if verbosity > 1:
+            if verbosity > 2:
                 print "Avoiding link: %s" % url
             return
 
