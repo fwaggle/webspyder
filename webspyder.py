@@ -13,6 +13,8 @@ maxdepth = 0
 domains = {}
 verbosity = 0
 wait = 0
+errors = 0
+seen = 0
 
 class SpyderHTMLParser(HTMLParser):
     def __init__(self):
@@ -38,7 +40,7 @@ def log(res, url, referer):
 
 # Crawl a URL
 def crawl(url, referer=''):
-    global results, depth
+    global results, depth, errors, seen
 
     # Create an absolute URL, based off the referer if we have to.
     u = urlparse.urlparse(url)
@@ -53,6 +55,8 @@ def crawl(url, referer=''):
     # Don't hit the same page twice
     if u.geturl() in results:
         return
+
+    seen = seen + 1
 
     # Only hit allowable domains
     if u.netloc not in domains:
@@ -82,7 +86,8 @@ def crawl(url, referer=''):
         req = urllib2.urlopen(u.geturl())
         code = req.code
     except urllib2.HTTPError as e:
-        code = e.code    
+        code = e.code
+        errors = errors + 1    
     except:
         code = 999
     
@@ -124,7 +129,7 @@ if __name__ == '__main__':
     for url in args.url:
         crawl(url)
 
-    print("Finished.")
+    print("Finished: %d URLs found, %d visited with %d errors." % (seen, len(results), errors))
 
     for i in results:
         if results[i] == None:
