@@ -107,7 +107,7 @@ if __name__ == '__main__':
     parser.add_argument('url', metavar='<url>', nargs='+', help='URLs to start scanning')
     parser.add_argument('--depth', '-d', metavar='N', type=int, default=0, help='Maximum depth to traverse from starting URL.')
     parser.add_argument('--verbose', '-v', action='count', help='Verbosity++')
-    parser.add_argument('--wait','-w', type=int, default=0, help='Time to wait between requests in microseconds')
+    parser.add_argument('--wait','-w', metavar='N', type=int, default=0, help='Time to wait between requests in microseconds')
     args = parser.parse_args()
 
     # set up global state

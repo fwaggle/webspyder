@@ -9,6 +9,7 @@
       -h, --help       show this help message and exit
       --depth N, -d N  Maximum depth to traverse from starting URL.
       --verbose, -v    Raise verbosity (use multiple times for more noise)
+      --wait N, -w N   Time to wait between requests in microseconds
 
 ## Verbosity levels
 
