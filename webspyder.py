@@ -3,6 +3,7 @@
 import argparse
 import urlparse
 import urllib2
+from time import sleep
 from HTMLParser import HTMLParser
 
 # Global State variables
@@ -11,6 +12,7 @@ depth = 0
 maxdepth = 0
 domains = {}
 verbosity = 0
+wait = 0
 
 class SpyderHTMLParser(HTMLParser):
     def __init__(self):
@@ -71,6 +73,10 @@ def crawl(url, referer=''):
     
     # Put an empty result in result set, so we don't keep recursing into same URL.
     results[u.geturl()] = None
+
+    # wait for delay, if set
+    if wait > 0:
+        sleep(wait)
     
     try:
         req = urllib2.urlopen(u.geturl())
@@ -101,11 +107,13 @@ if __name__ == '__main__':
     parser.add_argument('url', metavar='<url>', nargs='+', help='URLs to start scanning')
     parser.add_argument('--depth', '-d', metavar='N', type=int, default=0, help='Maximum depth to traverse from starting URL.')
     parser.add_argument('--verbose', '-v', action='count', help='Verbosity++')
+    parser.add_argument('--wait','-w', type=int, default=0, help='Time to wait between requests in microseconds')
     args = parser.parse_args()
 
     # set up global state
     maxdepth = args.depth
     verbosity = args.verbose
+    wait = args.wait / 1000.0
 
     # walk through list of head URLs
     for url in args.url:
