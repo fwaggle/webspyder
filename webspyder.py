@@ -52,8 +52,6 @@ def crawl(url, referer=''):
     if u.geturl() in results:
         return
 
-    print "%s%s (%s)" % (' '*(depth-1), u.geturl(), r.geturl())
-
     # Only hit allowable domains
     if u.netloc not in domains:
         if verbosity > 2:
@@ -87,7 +85,6 @@ def crawl(url, referer=''):
         parser.feed(req.read())
         
         for l in parser.links:
-            #print("Link: %s in %s" % (l, u.geturl()))
             crawl(l, u.geturl())
     
     depth = depth - 1
