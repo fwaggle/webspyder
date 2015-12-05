@@ -91,7 +91,7 @@ def crawl(url, referer=''):
     
     # Stuff the result into our results list and log
     results[u.geturl()] = SpyderCrawlResult(u.geturl(), code)
-    if code != 200 or verbosity > 0:
+    if code != 200 or verbosity > 1:
         log(code, u.geturl(), referer)
 
 # bootstrap
