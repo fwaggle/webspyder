@@ -1,11 +1,11 @@
-#! /usr/local/bin/python
+#! /usr/bin/python
 
 import argparse
-import urllib2
 import urlparse
-import re
+import urllib2
 from HTMLParser import HTMLParser
 
+# Global State variables
 results = {}
 depth = 0
 maxdepth = 0
@@ -13,7 +13,9 @@ domains = {}
 verbosity = 0
 
 class SpyderHTMLParser(HTMLParser):
-    links = []
+    def __init__(self):
+        HTMLParser.__init__(self)
+        self.links = []
     
     def handle_starttag(self, tag, attr):
         if tag != 'a':
@@ -24,8 +26,6 @@ class SpyderHTMLParser(HTMLParser):
                 self.links.append(n[1])
 
 class SpyderCrawlResult(object):
-    url = ''
-    result = 0
     
     def __init__(self, url, result):
         self.url = url
@@ -34,45 +34,48 @@ class SpyderCrawlResult(object):
 def log(res, url, referer):
     print "%d\t%s\t%s" % (res, url, referer)
 
-def crawl(url, referer=None):
-    global results, depth, domains, verbosity
+# Crawl a URL
+def crawl(url, referer=''):
+    global results, depth
 
+    # Create an absolute URL, based off the referer if we have to.
     u = urlparse.urlparse(url)
+    r = urlparse.urlparse(referer)
 
-    # Create absolute URLs
     if u.netloc == '':
-        ref = urlparse.urlparse(referer)
-        url = urlparse.urljoin(referer, url)
-        u = urlparse.urlparse(url)
+        if referer == None:
+            return # TODO: raise exception - relative URL with no referer!
+        domain = r._replace(path="").geturl()
+        u = urlparse.urlparse(urlparse.urljoin(referer, url))
+
+    # Don't hit the same page twice
+    if u.geturl() in results:
+        return
+
+    print "%s%s (%s)" % (' '*(depth-1), u.geturl(), r.geturl())
 
     # Only hit allowable domains
     if u.netloc not in domains:
         if verbosity > 2:
-            print "Foreign link: %s, aborting this leaf." % url
+            print "%sForeign link: %s, aborting this leaf." % (' '*depth, u.geturl())
         return
     else:
         if domains[u.netloc] == False:
             if verbosity > 2:
-                print "Avoiding link: %s" % url
+                print "Avoiding link: %s" % u.geturl()
             return
-
-    # Don't hit the same page twice, but log the result anyway
-    if url in results:
-        res = results[url]
-        if verbosity < 1:
-            return
-        if res.result != 200 or verbosity > 1:
-            log(res.result, url, referer)
-        return
 
     # Don't recurse deeper than maxdepth
-    if depth > maxdepth:
+    if maxdepth > 0 and depth > maxdepth:
         return
     
-    depth = depth + 1 
+    depth = depth + 1
+    
+    # Put an empty result in result set, so we don't keep recursing into same URL.
+    results[u.geturl()] = None
     
     try:
-        req = urllib2.urlopen(url)
+        req = urllib2.urlopen(u.geturl())
         code = req.code
     except urllib2.HTTPError as e:
         code = e.code    
@@ -84,30 +87,37 @@ def crawl(url, referer=None):
         parser.feed(req.read())
         
         for l in parser.links:
-            crawl(l, url)
+            #print("Link: %s in %s" % (l, u.geturl()))
+            crawl(l, u.geturl())
     
     depth = depth - 1
     
     # Stuff the result into our results list and log
-    results[url] = SpyderCrawlResult(url, code)
+    results[u.geturl()] = SpyderCrawlResult(u.geturl(), code)
     if code != 200 or verbosity > 0:
-        log(code, url, referer)
+        log(code, u.geturl(), referer)
 
+# bootstrap
 if __name__ == '__main__':
+    # Configure argument parser
     parser = argparse.ArgumentParser(description='Traverse websites looking for broken links.')
     parser.add_argument('url', metavar='<url>', nargs='+', help='URLs to start scanning')
-    parser.add_argument('--depth', '-d', metavar='N', type=int, default=5, help='Maximum depth to traverse from starting URL.')
+    parser.add_argument('--depth', '-d', metavar='N', type=int, default=0, help='Maximum depth to traverse from starting URL.')
     parser.add_argument('--verbose', '-v', action='count', help='Verbosity++')
-    
     args = parser.parse_args()
 
+    # set up global state
     maxdepth = args.depth
     verbosity = args.verbose
-    
+
+    # walk through list of head URLs
     for url in args.url:
         u = urlparse.urlparse(url)
-        if u.netloc not in domains or domains[u.netloc] != False:
-            domains[u.netloc] = True
-            crawl(url)
+        domains[u.netloc] = True
+        crawl(url)
 
-    print "Finished."
+    print("Finished.")
+
+    for i in results:
+        if results[i] == None:
+            print k
