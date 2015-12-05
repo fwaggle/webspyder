@@ -20,5 +20,4 @@
 
 ## Bugs
 
-* We show some url/referer pairs multiple times with verbosity > 0
 * No way to exclude certain links. The code is there but the UI isn't.
