@@ -119,6 +119,9 @@ if __name__ == '__main__':
     for url in args.url:
         u = urlparse.urlparse(url)
         domains[u.netloc] = True
+
+    # now crawl everything
+    for url in args.url:
         crawl(url)
 
     print("Finished.")
