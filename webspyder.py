@@ -93,7 +93,7 @@ def crawl(url, referer=''):
     
     if code == 200:
         parser = SpyderHTMLParser()
-        parser.feed(req.read())
+        parser.feed(req.read().decode('utf-8'))
         
         for l in parser.links:
             crawl(l, u.geturl())
