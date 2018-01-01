@@ -60,12 +60,12 @@ def crawl(url, referer=''):
 
     # Only hit allowable domains
     if u.netloc not in domains:
-        if verbosity > 2:
+        if verbosity >= 2:
             print("%sForeign link: %s, aborting this leaf." % (' '*depth, u.geturl()))
         return
     else:
         if domains[u.netloc] == False:
-            if verbosity > 2:
+            if verbosity >= 2:
                 print("Avoiding link: %s" % u.geturl())
             return
 
@@ -74,7 +74,7 @@ def crawl(url, referer=''):
         return
     
     depth = depth + 1
-    
+
     # Put an empty result in result set, so we don't keep recursing into same URL.
     results[u.geturl()] = None
 
@@ -102,7 +102,7 @@ def crawl(url, referer=''):
     
     # Stuff the result into our results list and log
     results[u.geturl()] = SpyderCrawlResult(u.geturl(), code)
-    if code != 200 or verbosity > 1:
+    if code != 200 or verbosity >= 1:
         log(code, u.geturl(), referer)
 
 # bootstrap
