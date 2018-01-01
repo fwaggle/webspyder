@@ -36,7 +36,7 @@ class SpyderCrawlResult(object):
         self.result = result
 
 def log(res, url, referer):
-    print "%d\t%s\t%s" % (res, url, referer)
+    print("%d\t%s\t%s" % (res, url, referer))
 
 # Crawl a URL
 def crawl(url, referer=''):
@@ -61,12 +61,12 @@ def crawl(url, referer=''):
     # Only hit allowable domains
     if u.netloc not in domains:
         if verbosity > 2:
-            print "%sForeign link: %s, aborting this leaf." % (' '*depth, u.geturl())
+            print("%sForeign link: %s, aborting this leaf." % (' '*depth, u.geturl()))
         return
     else:
         if domains[u.netloc] == False:
             if verbosity > 2:
-                print "Avoiding link: %s" % u.geturl()
+                print("Avoiding link: %s" % u.geturl())
             return
 
     # Don't recurse deeper than maxdepth
@@ -133,4 +133,4 @@ if __name__ == '__main__':
 
     for i in results:
         if results[i] == None:
-            print k
+            print(k)
